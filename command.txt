@@ -1,0 +1,14 @@
+helm install redis -f values.yaml bitnami/redis-cluster
+
+
+export REDIS_PASSWORD=$(kubectl get secret --namespace "default" redis-redis-cluster -o jsonpath="{.data.redis-password}" | base64 -d)
+
+
+helm upgrade --namespace default redis --set "cluster.externalAccess.enabled=true,cluster.externalAccess.service.type=LoadBalancer,cluster.externalAccess.service.loadBalancerIP[0]=a42e3d42050414ad7af37e87cc9a51c3-735221116.eu-north-1.elb.amazonaws.com,cluster.externalAccess.service.loadBalancerIP[1]=a7fa2149c2acb4d8e87dfbdcc543086c-1104934639.eu-north-1.elb.amazonaws.com,cluster.externalAccess.service.loadBalancerIP[2]=af54064093db4493b8d2396c0ad5e6b0-799993070.eu-north-1.elb.amazonaws.com,cluster.externalAccess.service.loadBalancerIP[3]=a116f0acab41a46839634195fa8d21e5-239949503.eu-north-1.elb.amazonaws.com,cluster.externalAccess.service.loadBalancerIP[4]=a4860114149434aabbc0aa37bbf2c6fb-1250840776.eu-north-1.elb.amazonaws.com,cluster.externalAccess.service.loadBalancerIP[5]=a49eed966863343fda3306fad64b209f-1094483703.eu-north-1.elb.amazonaws.com,password=$REDIS_PASSWORD" bitnami/redis-cluster
+
+
+CLUSTER NODES
+
+helm install rediscluster2 bitnami/redis-cluster --set metric.enabled=true --set serviceMonitor.enabled=true --set prometheusRule.enabled=true  --set cluster.externalAccess.enabled=true
+
+helm upgrade --timeout 600s redis bitnami/redis-cluster --set "password=${REDIS_PASSWORD},cluster.nodes=6" .
