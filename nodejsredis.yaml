@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejsredis
+  namespace: parasut-lucapacioli
+spec:
+  selector:
+    matchLabels:
+      app: nodejsredis
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: nodejsredis
+    spec:
+      containers:
+      - name: nodejsredis
+        image: oguzzarci/nodejsredis:0.1
+        env:
+        - name: REDIS_PORT
+          value: "empty"
+        - name: REDIS_HOST
+          value: "empty"
+        - name: REDIS_PASSWORD
+          value: "empty"
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejsredis
+  namespace: parasut-lucapacioli
+spec:
+  selector:
+    app: nodejsredis
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
+    protocol: TCP
